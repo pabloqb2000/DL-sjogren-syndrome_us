@@ -19,39 +19,25 @@ valid_evaluator = build_evaluator(config.evaluation.valid_metrics, writers, Data
 trainer = Trainer(model, logger, train_evaluator, valid_evaluator, config)
 
 
+import torchvision.transforms as transforms
+import torchvision.datasets as datasets
+from torch.utils.data import DataLoader
 
-import torch
-import numpy as np
-from torch.utils.data import TensorDataset, DataLoader
 
-d_in = 15
-d_out = 10
-N = 10000
+train_transform = transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.ToTensor(),
+    transforms.Grayscale(),
+    transforms.Normalize(0, 1)
+])
 
-x = np.random.normal(0, 1, (N, d_in))
-A = np.random.normal(0, 1, (d_out, d_in))
-y = (A @ x.T).T + np.random.normal(0, .2, (N, d_out))
-logger.log("Y shape", y.shape)
-
-x = torch.Tensor(x)
-y = torch.Tensor(y)
-
-dataset = TensorDataset(x, y)
-train_dataset, validation_dataset, test_dataset = torch.utils.data.random_split(dataset, [0.7, 0.1, 0.2])
-trainloader = DataLoader(
-    train_dataset, 
-    batch_size=config.data.batch_size, 
-    shuffle=config.data.shuffle
+train_dataset = datasets.ImageFolder(
+    root=config.data.path,
+    transform=train_transform
 )
-validloader = DataLoader(
-    validation_dataset, 
-    batch_size=config.data.batch_size, 
-    shuffle=config.data.shuffle
-)
-testloader = DataLoader(
-    test_dataset, 
-    batch_size=config.data.batch_size, 
-    shuffle=config.data.shuffle
+train_loader = DataLoader(
+    train_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle
 )
 
-trainer.train(trainloader, validloader)
+
+trainer.train(train_loader, train_loader)

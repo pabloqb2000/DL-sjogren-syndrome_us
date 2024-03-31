@@ -1,31 +1,33 @@
-name: Experiment-name
+name: SS-classification-01
 data:
-  path: ./data/
+  path: ./data/imgs/
   batch_size: 32
   shuffle: true
 model:
   type: FeedForwardNN
   model_config:
     device: cpu
-    dropout_rate: 0.1
+    dropout_rate: 0.2
     layer_dims:
-      - 15
-      - 12
-      - 10
+      - 65536
+      - 4096
+      - 1024
+      - 64
+      - 4
 train:
   save_model: false
   out_path: ./logs/{date}/{now}__{name}/
   batch_size: 32
-  n_epochs: 10
-  batches_per_evaluation: 11
+  n_epochs: 30
+  batches_per_evaluation: 1
 
-  loss: MSELoss
+  loss: CrossEntropyLoss
   loss_config:
     {}
 
   optimizer: Adam
   optimizer_config:
-    lr: 0.01
+    lr: 0.001
   
   lr_scheduler: ReduceLROnPlateau
   lr_scheduler_config:
@@ -45,15 +47,15 @@ log:
     verbose: true
 evaluation:
   train_metrics:
-    - name: MSE
-      perc: 0.5
-    - name: L1
-      perc: 0.5
+    - name: CrossEntropyLoss
+      perc: 1
+    - name: Accuracy
+      perc: 1
   valid_metrics:
-    - name: MSE
-    - name: L1
+    - name: CrossEntropyLoss
+    - name: Accuracy
   writers:
     - LogWritter
-    - NumpyWriter
-    - TensorboardWriter
     - MLflowWriter
+    # - NumpyWriter
+    # - TensorboardWriter

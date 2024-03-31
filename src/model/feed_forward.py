@@ -21,7 +21,7 @@ class FeedForwardNN(nn.Module):
         self.to(self.device)
         
     def forward(self, x):
-        x = self.relu(self.input_layer(x))
+        x = self.relu(self.input_layer(x.view((x.shape[0], -1))))
         
         for hidden_layer in self.hidden_layers:
             x = self.relu(hidden_layer(x))
