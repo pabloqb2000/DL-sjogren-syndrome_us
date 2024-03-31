@@ -1,0 +1,59 @@
+name: Experiment-name
+data:
+  path: ./data/
+  batch_size: 32
+  shuffle: true
+model:
+  type: FeedForwardNN
+  model_config:
+    device: cpu
+    dropout_rate: 0.1
+    layer_dims:
+      - 15
+      - 12
+      - 10
+train:
+  save_model: false
+  out_path: ./logs/{date}/{now}__{name}/
+  batch_size: 32
+  n_epochs: 10
+  batches_per_evaluation: 11
+
+  loss: MSELoss
+  loss_config:
+    {}
+
+  optimizer: Adam
+  optimizer_config:
+    lr: 0.01
+  
+  lr_scheduler: ReduceLROnPlateau
+  lr_scheduler_config:
+    factor: 0.1
+    patience: 2
+    verbose: true
+  
+  early_stopping_patience: 4
+
+  max_grad_norm: 2. 
+  grad_norm_type: 2
+log:
+  stdout: true
+  file: true
+  log_config: true
+  logger_config:
+    verbose: true
+evaluation:
+  train_metrics:
+    - name: MSE
+      perc: 0.5
+    - name: L1
+      perc: 0.5
+  valid_metrics:
+    - name: MSE
+    - name: L1
+  writers:
+    - LogWritter
+    - NumpyWriter
+    - TensorboardWriter
+    - MLflowWriter
