@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision.models as models
 
 class ResNetUSCL(nn.Module):
-    def __init__(self, hidden_dim=256, last_dim=4, pretrained=False, weights_path='', device='cpu', **kwargs):
+    def __init__(self, hidden_dim=256, last_dim=4, pretrained='', weights_path='', device='cpu', **kwargs):
         super(ResNetUSCL, self).__init__()
 
         resnet = models.resnet18(pretrained=pretrained)

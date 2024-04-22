@@ -1,6 +1,7 @@
 import sys
 import torch
 from src.train.trainer import Trainer
+from src.test.tester import Tester
 from src.model.model_factory import build_model
 from src.logger.loggers import build_logger
 from src.utils.load_config import load_config 
@@ -8,6 +9,7 @@ from src.utils.dataset_type import DatasetType
 from src.evalutation.writers import build_writers
 from src.evalutation.evaluators import build_evaluator
 from src.utils.misc import set_seed
+
 
 config_file = sys.argv[1]
 config = load_config(config_file)
@@ -20,6 +22,7 @@ train_evaluator = build_evaluator(config.evaluation.train_metrics, writers, Data
 valid_evaluator = build_evaluator(config.evaluation.valid_metrics, writers, DatasetType.Valid)
 
 trainer = Trainer(model, logger, train_evaluator, valid_evaluator, config)
+tester = Tester(model, logger, train_evaluator, valid_evaluator, config)
 
 
 from src.data.datasets import CachedImageDataset
@@ -61,3 +64,5 @@ test_loader = DataLoader(
 
 
 trainer.train(train_loader, valid_loader)
+
+tester.test(test_loader)
