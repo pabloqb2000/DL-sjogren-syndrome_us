@@ -29,7 +29,7 @@ from torchvision.transforms import v2
 cached_transform = v2.Compose([
     v2.ToImage(),
     v2.ToDtype(torch.float32, scale=True),
-    v2.Grayscale()
+    # v2.Grayscale()
 ])
 
 online_transform = v2.Compose([
@@ -38,7 +38,7 @@ online_transform = v2.Compose([
     v2.RandomRotation(
         (-config.data.rotation_angle, config.data.rotation_angle),
         v2.InterpolationMode.BILINEAR),
-    v2.Normalize([0], [1]),
+    v2.Normalize([0]*3, [1]*3),
 ])
 
 dataset = CachedImageDataset(

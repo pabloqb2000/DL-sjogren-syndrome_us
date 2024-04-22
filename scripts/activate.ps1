@@ -1,0 +1,1 @@
+C:\Users\polqb\venvs\torch\Scripts\Activate.ps1

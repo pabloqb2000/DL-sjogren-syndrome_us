@@ -1,8 +1,10 @@
 data/*
 logs/*
 mlruns
+weights/*
 !data/.gitkeep
 !logs/.gitkeep
+!weights/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,85 @@
+name: SS-classification-01
+random_seed: 19
+data:
+  path: ./data/imgs/
+  batch_size: 32
+  crop_size:
+    - 256
+    - 256
+  rotation_angle: 30
+  shuffle: true
+
+model:
+  type: CNN
+  model_config:
+    device: cpu
+    n_blocks: 9
+    convolutions_per_block: 1
+    ch_in: 1
+    ch_first: 16
+    ch_factor: 2
+    first_conv_config:
+      kernel_size: 3
+      stride: 2
+      padding: 1
+      # padding_mode: zeros
+    normal_conv_config:
+      kernel_size: 3
+      padding: 1
+    dropout_rate: 0.1
+    pooling_layer: null
+    # pooling_layer: MaxPool2d
+    # pooling_layer_config:
+    #   kernel_size: 2
+    non_linearity: ReLU
+    non_linearity_config:
+      inplace: True
+    last_layer_dims:
+      - 256
+      - 4
+
+train:
+  save_model: false
+  out_path: ./logs/{date}/{now}__{name}/
+  batch_size: 32
+  n_epochs: 100
+  batches_per_evaluation: 5
+
+  loss: CrossEntropyLoss
+  loss_config:
+    {}
+
+  optimizer: Adam
+  optimizer_config:
+    lr: 0.001
+  
+  lr_scheduler: ReduceLROnPlateau
+  lr_scheduler_config:
+    factor: 0.5
+    patience: 8
+    verbose: true
+  
+  early_stopping_patience: 24
+
+  max_grad_norm: 2. 
+  grad_norm_type: 2
+log:
+  stdout: true
+  file: true
+  log_config: true
+  logger_config:
+    verbose: true
+evaluation:
+  train_metrics:
+    - name: CrossEntropyLoss
+      perc: 1
+    - name: Accuracy
+      perc: 1
+  valid_metrics:
+    - name: CrossEntropyLoss
+    - name: Accuracy
+  writers:
+    - LogWritter
+    - MLflowWriter
+    # - NumpyWriter
+    # - TensorboardWriter
