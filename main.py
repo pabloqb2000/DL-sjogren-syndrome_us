@@ -9,6 +9,8 @@ from src.utils.dataset_type import DatasetType
 from src.evalutation.writers import build_writers
 from src.evalutation.evaluators import build_evaluator
 from src.utils.misc import set_seed
+from sklearn.model_selection import train_test_split
+import pdb
 
 
 config_file = sys.argv[1]
@@ -25,8 +27,8 @@ trainer = Trainer(model, logger, train_evaluator, valid_evaluator, config)
 tester = Tester(model, logger, train_evaluator, valid_evaluator, config)
 
 
-from src.data.datasets import CachedImageDataset
-from torch.utils.data import DataLoader, random_split
+from src.data.datasets import CachedImageDataset, CustomImageDataset
+from torch.utils.data import TensorDataset, DataLoader, random_split
 from torchvision.transforms import v2
 
 cached_transform = v2.Compose([
@@ -50,7 +52,20 @@ dataset = CachedImageDataset(
     online_transform=online_transform
 )
 
-train_dataset, valid_dataset, test_dataset = random_split(dataset, [0.7, 0.1, 0.2])
+
+images = []
+labels = []
+for i, tuple in enumerate(dataset):
+    images.append(tuple[0])
+    labels.append(tuple[1])
+
+im_train, im_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, stratify=dataset.labels, random_state=42)
+im_train, im_val, y_train, y_val = train_test_split(im_train, y_train, test_size=0.1, stratify= y_train, random_state=42)
+# train_dataset, valid_dataset, test_dataset = random_split(dataset, [0.7, 0.1, 0.2])
+
+train_dataset = CustomImageDataset(im_train, y_train)
+valid_dataset = CustomImageDataset(im_val, y_val)
+test_dataset = CustomImageDataset(im_test, y_test)
 
 train_loader = DataLoader(
     train_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle

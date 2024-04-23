@@ -37,3 +37,17 @@ class CachedImageDataset(Dataset):
             img = self.online_transform(img)
         
         return img, label
+
+
+
+class CustomImageDataset(Dataset):
+    def __init__(self, X, y, transform=None, target_transform=None):
+        self.images = X
+        self.labels = y
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+        return self.images[idx], self.labels[idx]
+
