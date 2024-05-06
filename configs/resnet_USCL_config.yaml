@@ -18,11 +18,12 @@ model:
     weights_path: ./weights/best_model.pth
 
 train:
-  save_model: true
+  save_model: false
   out_path: ./logs/{date}/{now}__{name}/
   batch_size: 32
   n_epochs: 100
   batches_per_evaluation: 5
+  full_train: false
 
   loss: CrossEntropyLoss
   loss_config:
@@ -30,15 +31,15 @@ train:
 
   optimizer: Adam
   optimizer_config:
-    lr: 0.0004
+    lr: 0.000005
   
   lr_scheduler: ReduceLROnPlateau
   lr_scheduler_config:
     factor: 0.5
-    patience: 8
+    patience: 5
     verbose: true
   
-  early_stopping_patience: 24
+  early_stopping_patience: 15
 
   max_grad_norm: 2. 
   grad_norm_type: 2
@@ -63,4 +64,5 @@ evaluation:
     # - NumpyWriter
     # - TensorboardWriter
 test:
+
   

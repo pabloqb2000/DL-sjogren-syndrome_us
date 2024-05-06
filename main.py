@@ -9,22 +9,13 @@ from src.utils.dataset_type import DatasetType
 from src.evalutation.writers import build_writers
 from src.evalutation.evaluators import build_evaluator
 from src.utils.misc import set_seed
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 import pdb
 
 
 config_file = sys.argv[1]
 config = load_config(config_file)
 set_seed(config.random_seed)
-
-model = build_model(config.model)
-logger = build_logger(config)
-writers = build_writers(config, config.train.out_path, logger)
-train_evaluator = build_evaluator(config.evaluation.train_metrics, writers, DatasetType.Train)
-valid_evaluator = build_evaluator(config.evaluation.valid_metrics, writers, DatasetType.Valid)
-
-trainer = Trainer(model, logger, train_evaluator, valid_evaluator, config)
-tester = Tester(model, logger, train_evaluator, valid_evaluator, config)
 
 
 from src.data.datasets import CachedImageDataset, CustomImageDataset
@@ -43,6 +34,8 @@ online_transform = v2.Compose([
     v2.RandomRotation(
         (-config.data.rotation_angle, config.data.rotation_angle),
         v2.InterpolationMode.BILINEAR),
+    # v2.GaussianBlur(kernel_size = 5),
+    # v2.ColorJitter(),
     v2.Normalize([0]*3, [1]*3),
 ])
 
@@ -59,25 +52,72 @@ for i, tuple in enumerate(dataset):
     images.append(tuple[0])
     labels.append(tuple[1])
 
-im_train, im_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, stratify=dataset.labels, random_state=42)
-im_train, im_val, y_train, y_val = train_test_split(im_train, y_train, test_size=0.1, stratify= y_train, random_state=42)
-# train_dataset, valid_dataset, test_dataset = random_split(dataset, [0.7, 0.1, 0.2])
 
-train_dataset = CustomImageDataset(im_train, y_train)
-valid_dataset = CustomImageDataset(im_val, y_val)
-test_dataset = CustomImageDataset(im_test, y_test)
+im_train, im_test, y_train, y_test = train_test_split(images, labels, test_size=0.1, stratify=dataset.labels, random_state=42)
 
-train_loader = DataLoader(
-    train_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle
-)
-valid_loader = DataLoader(
-    valid_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle
-)
-test_loader = DataLoader(
-    test_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle
-)
+if config.train.full_train:
+
+    skfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    train_dataset = CustomImageDataset(im_train, y_train)
+    test_dataset = CustomImageDataset(im_test, y_test)
+
+    for fold, (train_idx, val_idx) in enumerate(skfold.split(im_train, y_train)):
+
+        model = build_model(config.model)
+        logger = build_logger(config)
+        writers = build_writers(config, config.train.out_path, logger)
+        train_evaluator = build_evaluator(config.evaluation.train_metrics, writers, DatasetType.Train)
+        valid_evaluator = build_evaluator(config.evaluation.valid_metrics, writers, DatasetType.Valid)
+
+        trainer = Trainer(model, logger, train_evaluator, valid_evaluator, config)
+        tester = Tester(model, logger, train_evaluator, valid_evaluator, config)
+
+        logger.log(f"Fold {fold + 1}")
+        logger.log("-------")
+
+        train_loader = DataLoader(
+            train_dataset, batch_size=config.data.batch_size, sampler=torch.utils.data.SubsetRandomSampler(train_idx)
+        )
+        valid_loader = DataLoader(
+            train_dataset, batch_size=config.data.batch_size, sampler=torch.utils.data.SubsetRandomSampler(val_idx),
+        )
+
+        trainer.train(train_loader, valid_loader)
 
 
-trainer.train(train_loader, valid_loader)
+        test_loader = DataLoader(
+            test_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle,
+        )
 
-tester.test(test_loader)
+        tester.test(test_loader)
+
+else:
+    model = build_model(config.model)
+    logger = build_logger(config)
+    writers = build_writers(config, config.train.out_path, logger)
+    train_evaluator = build_evaluator(config.evaluation.train_metrics, writers, DatasetType.Train)
+    valid_evaluator = build_evaluator(config.evaluation.valid_metrics, writers, DatasetType.Valid)
+
+    trainer = Trainer(model, logger, train_evaluator, valid_evaluator, config)
+    tester = Tester(model, logger, train_evaluator, valid_evaluator, config)
+    im_train, im_val, y_train, y_val = train_test_split(im_train, y_train, test_size=0.15, stratify= y_train, random_state=42)
+
+    train_dataset = CustomImageDataset(im_train, y_train)
+    valid_dataset = CustomImageDataset(im_val, y_val)
+    test_dataset = CustomImageDataset(im_test, y_test)
+
+    train_loader = DataLoader(
+            train_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle
+        )
+    valid_loader = DataLoader(
+        valid_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle,
+    )
+
+    test_loader = DataLoader(
+        test_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle,
+    )
+
+    trainer.train(train_loader, valid_loader)
+
+    tester.test(test_loader)
