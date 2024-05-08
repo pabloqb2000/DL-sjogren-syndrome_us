@@ -15,9 +15,9 @@ model:
     device: cpu
     n_blocks: 9
     convolutions_per_block: 1
-    ch_in: 1
-    ch_first: 16
-    ch_factor: 2
+    ch_in: 3
+    ch_first: 4
+    ch_factor: 1.5
     first_conv_config:
       kernel_size: 3
       stride: 2
@@ -35,7 +35,7 @@ model:
     non_linearity_config:
       inplace: True
     last_layer_dims:
-      - 256
+      - 400
       - 4
 
 train:
@@ -44,6 +44,7 @@ train:
   batch_size: 32
   n_epochs: 100
   batches_per_evaluation: 5
+  full_train: false
 
   loss: CrossEntropyLoss
   loss_config:

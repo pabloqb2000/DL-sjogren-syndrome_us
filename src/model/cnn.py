@@ -24,8 +24,8 @@ class CNN(nn.Module):
         self.pooling_layer = get_pooling_layer(pooling_layer, pooling_layer_config) \
             if pooling_layer else None
         self.non_linearity = get_nonlinearity(non_linearity, non_linearity_config)
-
-        self.n_channels = [ch_in, *(ch_first * (ch_factor**(i//2)) for i in range(n_blocks))]
+        
+        self.n_channels = [ch_in, *(ch_first * int(ch_factor**i) for i in range(n_blocks))]
         
         for i, (ch_in, ch_out) in enumerate(zip(self.n_channels[:-1], self.n_channels[1:])):
             block = nn.ModuleList()
@@ -67,6 +67,7 @@ class CNN(nn.Module):
         for block in self.blocks:
             for layer in block:
                 x = layer(x)
+        x = x.view((x.shape[0], -1))
         x = self.ffnn(x)
 
         return x
