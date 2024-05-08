@@ -44,10 +44,20 @@ class CustomImageDataset(Dataset):
     def __init__(self, X, y, transform=None, target_transform=None):
         self.images = X
         self.labels = y
+        self.transform = transform
+        self.target_transform = target_transform
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        return self.images[idx], self.labels[idx]
+        x = self.images[idx]
+        if self.transform:
+            x = self.transform(x)
+
+        y = self.labels[idx]
+        if self.target_transform:
+            y = self.target_transform(y)
+
+        return x, y
 

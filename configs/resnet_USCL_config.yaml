@@ -13,8 +13,11 @@ model:
   type: ResNetUSCL
   model_config:
     device: cpu
-    hidden_dim: 256
+    freeze: False
+    hidden_dim: 64
+    dropout: 0.5
     last_dim: 4
+    discard_layers: 2
     weights_path: ./weights/best_model.pth
 
 train:
@@ -22,7 +25,7 @@ train:
   out_path: ./logs/{date}/{now}__{name}/
   batch_size: 32
   n_epochs: 100
-  batches_per_evaluation: 5
+  batches_per_evaluation: 4
   full_train: false
 
   loss: CrossEntropyLoss
@@ -31,15 +34,15 @@ train:
 
   optimizer: Adam
   optimizer_config:
-    lr: 0.000005
+    lr: 0.00001
   
   lr_scheduler: ReduceLROnPlateau
   lr_scheduler_config:
     factor: 0.5
-    patience: 5
+    patience: 4
     verbose: true
   
-  early_stopping_patience: 15
+  early_stopping_patience: 18
 
   max_grad_norm: 2. 
   grad_norm_type: 2
@@ -60,9 +63,9 @@ evaluation:
     - name: Accuracy
   writers:
     - LogWritter
-    # - MLflowWriter
-    # - NumpyWriter
-    # - TensorboardWriter
+    - MLflowWriter
+    - NumpyWriter
+    - TensorboardWriter
 test:
 
   

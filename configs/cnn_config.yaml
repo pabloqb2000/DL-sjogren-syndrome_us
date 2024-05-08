@@ -81,5 +81,5 @@ evaluation:
   writers:
     - LogWritter
     - MLflowWriter
-    # - NumpyWriter
-    # - TensorboardWriter
+    - NumpyWriter
+    - TensorboardWriter
