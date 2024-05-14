@@ -3,11 +3,16 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 
-def data_split(valid_size=.15, test_size=.15, random_state=42):
-    data = pd.read_csv('./data/labels.csv', sep=';')
+def data_split(valid_size=.15, test_size=.15, random_state=42):   
+    data = pd.read_csv('./data/labels.csv', sep=',')
     patients = np.unique(data['Patient ID'])
     centers = [
         data[data['Patient ID'] == id].iloc[0].Center
+        for id in patients
+    ]
+
+    centers = [ # Stratify by labels instead of by centers
+        data[data['Patient ID'] == id]["OMERACT score"].iloc[0] 
         for id in patients
     ]
 

@@ -25,15 +25,18 @@ class Tester:
         
         self.model = model
         self.logger = logger
-        # self.config = config.test
+        self.config = config
 
     def test(self, testloader):
-        total_loss = 0
+        total_loss = 0.0
         correct_predictions = 0
         total_samples = 0
 
         true_labels_list = []
         predicted_labels_list = []
+
+        self.model.eval()
+        self.loss = build_loss(self.config.train)
 
         with torch.no_grad():
             for inputs, labels in testloader:
@@ -44,8 +47,7 @@ class Tester:
                 outputs = self.model(inputs)
                 
                 # 5. Compute metrics
-                criterion = nn.CrossEntropyLoss()
-                loss = criterion(outputs, labels)  # Calculate loss
+                loss = self.loss(outputs, labels)  # Calculate loss
                 total_loss += loss.item()  # Accumulate loss
                 
                 _, predicted = torch.max(outputs, 1)  # Get predicted labels
@@ -62,7 +64,7 @@ class Tester:
         average_loss = total_loss / len(testloader)
         accuracy = correct_predictions / total_samples
 
-        self.logger.log("Average loss in test:", average_loss)
+        self.logger.log("Final loss in test:", average_loss)
         self.logger.log("Accuracy: ", accuracy)
 
         self.logger.log("Confusion Matrix:\n", conf_matrix)

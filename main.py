@@ -29,12 +29,15 @@ transform = v2.Compose([
     v2.RandomResizedCrop(size=config.data.crop_size, antialias=True),
     # v2.Grayscale()
     v2.RandomHorizontalFlip(p=0.5),
-    v2.RandomRotation(
-        (-config.data.rotation_angle, config.data.rotation_angle),
-        v2.InterpolationMode.BILINEAR),
-    # v2.GaussianBlur(kernel_size = 5),
+
+    #v2.RandomRotation(
+    #    (-config.data.rotation_angle, config.data.rotation_angle),
+    #    v2.InterpolationMode.BILINEAR),
+
+    #v2.GaussianBlur(kernel_size = 5),
     # v2.ColorJitter(),
-    v2.Normalize([60.21704499799203]*3, [40.62192559049014]*3),
+    # v2.Normalize([60.21704499799203]*3, [40.62192559049014]*3),
+    # v2.RandomEqualize(p = 0.5),
 ])
 
 
@@ -92,7 +95,7 @@ else:
 
     train_dataset = CustomImageDataset(im_train, y_train, transform)
     valid_dataset = CustomImageDataset(im_val, y_val, transform)
-    test_dataset = CustomImageDataset(im_test, y_test, transform)
+    test_dataset = CustomImageDataset(im_test, y_test, None)
 
     train_loader = DataLoader(
         train_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle
@@ -106,4 +109,5 @@ else:
 
     trainer.train(train_loader, valid_loader)
 
-    tester.test(test_loader)
+    tester.test(valid_loader)
+    '''tester.test(test_loader)'''

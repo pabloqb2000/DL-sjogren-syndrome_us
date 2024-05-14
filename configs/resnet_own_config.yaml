@@ -1,0 +1,69 @@
+name: resnet_own
+random_seed: 19
+data:
+  path: ./data/imgs/
+  batch_size: 32
+  crop_size:
+    - 256
+    - 256
+  rotation_angle: 30
+  shuffle: true
+
+model:
+  type: ResNetUSCL
+  model_config:
+    device: cpu
+    freeze: False
+    hidden_dim: 64
+    dropout: 0.5
+    last_dim: 4
+    discard_layers: 0
+    weights_path: ./weights/best_model.pth
+
+train:
+  save_model: true
+  out_path: ./logs/{date}/{now}__{name}/
+  batch_size: 32
+  n_epochs: 100
+  batches_per_evaluation: 4
+  full_train: false
+
+  loss: CrossEntropyLoss
+  loss_config:
+    {}
+
+  optimizer: Adam
+  optimizer_config:
+    lr: 0.001
+  
+  lr_scheduler: ReduceLROnPlateau
+  lr_scheduler_config:
+    factor: 0.5
+    patience: 4
+    verbose: true
+  
+  early_stopping_patience: 18
+
+  max_grad_norm: 2. 
+  grad_norm_type: 2
+log:
+  stdout: true
+  file: true
+  log_config: true
+  logger_config:
+    verbose: true
+evaluation:
+  train_metrics:
+    - name: CrossEntropyLoss
+      perc: 1
+    - name: Accuracy
+      perc: 1
+  valid_metrics:
+    - name: CrossEntropyLoss
+    - name: Accuracy
+  writers:
+    - LogWritter
+    #- MLflowWriter
+    #- NumpyWriter
+    #- TensorboardWriter
+test:

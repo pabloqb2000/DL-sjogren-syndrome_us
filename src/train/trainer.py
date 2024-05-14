@@ -157,6 +157,6 @@ class Trainer:
     def print_final_info(self):
         self.logger.log("Total training time:", str(datetime.now() - self.start_time))
         self.logger.log("Trained for", self.n_trained_batches, "batches,", np.ceil(self.n_trained_batches / self.batches_per_epoch), "epochs")
-        self.logger.log("Final training loss:", self.training_loss[-1])
-        self.logger.log("Final validation loss:", self.validation_loss[-1])
+        '''self.logger.log("Final training loss:", self.training_loss[-1])
+        self.logger.log("Final validation loss:", self.validation_loss[-1])'''
     
