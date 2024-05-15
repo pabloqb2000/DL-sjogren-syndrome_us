@@ -3,6 +3,7 @@ import cv2
 import torch
 from os import path
 from torch.utils.data import Dataset
+from torchvision.transforms import v2
 
 class CachedImageDataset(Dataset):
     def __init__(self, root_dir, cached_transform=None, online_transform=None):
@@ -53,7 +54,7 @@ class CustomImageDataset(Dataset):
     def __getitem__(self, idx):
         x = self.images[idx]
         if self.transform:
-            x = self.transform(x)
+            x = self.transform(x / 255.0)
 
         y = self.labels[idx]
         if self.target_transform:
