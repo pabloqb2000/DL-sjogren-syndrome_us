@@ -12,6 +12,7 @@ from src.utils.misc import set_seed
 from src.data.split import data_split
 from sklearn.model_selection import train_test_split, StratifiedKFold
 import pdb
+from torchvision.models import ViT_B_16_Weights
 
 from src.data.datasets import CachedImageDataset, CustomImageDataset
 from torch.utils.data import TensorDataset, DataLoader, random_split
@@ -26,19 +27,23 @@ set_seed(config.random_seed)
 transform = v2.Compose([
     v2.ToImage(),
     v2.ToDtype(torch.float32, scale=True),
-    v2.RandomResizedCrop(size=config.data.crop_size, antialias=True),
-    # v2.Grayscale()
-    v2.RandomHorizontalFlip(p=0.5),
 
     #v2.RandomRotation(
-    #    (-config.data.rotation_angle, config.data.rotation_angle),
-    #    v2.InterpolationMode.BILINEAR),
+     #   (-config.data.rotation_angle, config.data.rotation_angle),
+      #  v2.InterpolationMode.BILINEAR),
 
-    #v2.GaussianBlur(kernel_size = 5),
+    v2.RandomResizedCrop(size=config.data.crop_size, antialias=True),
+    v2.RandomHorizontalFlip(p=0.5),
+
+
+    # v2.GaussianBlur(kernel_size = 3),
     # v2.ColorJitter(),
-    # v2.Normalize([60.21704499799203]*3, [40.62192559049014]*3),
+    # v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     # v2.RandomEqualize(p = 0.5),
 ])
+
+'''weights = ViT_B_16_Weights.DEFAULT
+transform = weights.transforms()'''
 
 
 if config.train.full_train:
@@ -109,5 +114,12 @@ else:
 
     trainer.train(train_loader, valid_loader)
 
+    # Treat valid as test to see the results more specifically 
+    valid_dataset = CustomImageDataset(im_val, y_val, None)
+    valid_loader = DataLoader(
+        valid_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle,
+    )
     tester.test(valid_loader)
+
+    # Last step would be to check results in test (once training is done correctly)
     '''tester.test(test_loader)'''
