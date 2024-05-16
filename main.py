@@ -24,22 +24,28 @@ config = load_config(config_file)
 set_seed(config.random_seed)
 
 
-transform = v2.Compose([
+train_transform = v2.Compose([
     v2.ToImage(),
     v2.ToDtype(torch.float32, scale=True),
 
     #v2.RandomRotation(
-     #   (-config.data.rotation_angle, config.data.rotation_angle),
-      #  v2.InterpolationMode.BILINEAR),
+    #           (-config.data.rotation_angle, config.data.rotation_angle),
+    #          v2.InterpolationMode.BILINEAR),
 
     v2.RandomResizedCrop(size=config.data.crop_size, antialias=True),
     v2.RandomHorizontalFlip(p=0.5),
+    v2.GaussianBlur(kernel_size = 3),
+                # v2.ColorJitter(),
+    v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                # v2.RandomEqualize(p = 0.5),
+])
 
 
-    # v2.GaussianBlur(kernel_size = 3),
-    # v2.ColorJitter(),
-    # v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    # v2.RandomEqualize(p = 0.5),
+valid_transform = v2.Compose([
+    v2.ToImage(),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.CenterCrop(size=config.data.crop_size),
+    v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
 '''weights = ViT_B_16_Weights.DEFAULT
@@ -98,8 +104,8 @@ else:
     im_val, y_val = val_data
     im_test, y_test = test_data
 
-    train_dataset = CustomImageDataset(im_train, y_train, transform)
-    valid_dataset = CustomImageDataset(im_val, y_val, transform)
+    train_dataset = CustomImageDataset(im_train, y_train, train_transform)
+    valid_dataset = CustomImageDataset(im_val, y_val, valid_transform)
     test_dataset = CustomImageDataset(im_test, y_test, None)
 
     train_loader = DataLoader(
@@ -115,10 +121,10 @@ else:
     trainer.train(train_loader, valid_loader)
 
     # Treat valid as test to see the results more specifically 
-    valid_dataset = CustomImageDataset(im_val, y_val, None)
+    '''valid_dataset = CustomImageDataset(im_val, y_val, transform = v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True), v2.CenterCrop(size=config.data.crop_size, antialias=True)]))
     valid_loader = DataLoader(
         valid_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle,
-    )
+    )'''
     tester.test(valid_loader)
 
     # Last step would be to check results in test (once training is done correctly)
