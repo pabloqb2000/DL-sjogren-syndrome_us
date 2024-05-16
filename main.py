@@ -125,7 +125,11 @@ else:
     valid_loader = DataLoader(
         valid_dataset, batch_size=config.data.batch_size, shuffle=config.data.shuffle,
     )'''
-    tester.test(valid_loader)
+
+    valid_loader = DataLoader(
+        valid_dataset, batch_size=config.data.batch_size, shuffle=False,
+    )
+    tester.test(valid_loader, valid_dataset, im_val)
 
     # Last step would be to check results in test (once training is done correctly)
     '''tester.test(test_loader)'''
