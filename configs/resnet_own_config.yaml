@@ -4,8 +4,8 @@ data:
   path: ./data/imgs/
   batch_size: 32
   crop_size:
-    - 256
-    - 256
+    - 224
+    - 224
   rotation_angle: 30
   shuffle: true
 
