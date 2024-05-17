@@ -71,10 +71,13 @@ class Tester:
                     correct_mask = (predicted == labels) & class_mask
                     incorrect_mask = (predicted != labels) & class_mask
                     
-                    if correct_indices[class_label] is None:
+                    '''if correct_indices[class_label] is None:
                         correct_indices[class_label] = np.where(correct_mask)[0]
                     if incorrect_indices[class_label] is None:
-                        incorrect_indices[class_label] = np.where(incorrect_mask)[0]
+                        incorrect_indices[class_label] = np.where(incorrect_mask)[0]'''
+
+                    correct_indices[class_label] = np.where(correct_mask)[0] if correct_indices[class_label] is None else np.concatenate((correct_indices[class_label], np.where(correct_mask)[0]))
+                    incorrect_indices[class_label] = np.where(incorrect_mask)[0] if incorrect_indices[class_label] is None else np.concatenate((incorrect_indices[class_label], np.where(incorrect_mask)[0]))
 
 
         conf_matrix = confusion_matrix(true_labels_list, predicted_labels_list)
@@ -100,24 +103,25 @@ class Tester:
             # Get one correctly predicted image index for the class
             try:
                 correct_idx = correct_indices[class_label][0]
-                correct_image = testloader.dataset[correct_idx][0] 
+                correct_image, true_label = testloader.dataset[correct_idx]
 
                 correct_image_original = inverse_transform(correct_image)
                 correct_image_original = correct_image_original.permute(1, 2, 0).numpy()
 
-                cv2.imwrite(os.path.join(output_dir, f"correct_class_{class_label}.jpg"), correct_image_original[:,:,0]*255)
+                cv2.imwrite(os.path.join(output_dir, f"true_class_{true_label}_predicted_class_{class_label}.jpg"), correct_image_original[:,:,0]*255)
             except:
                 self.logger.log(f"No correctly classified images for class {class_label}")
             
             # Get one incorrectly predicted image index for the class
             try:
                 incorrect_idx = incorrect_indices[class_label][0]
-                incorrect_image = testloader.dataset[incorrect_idx][0]
+                incorrect_image, true_label  = testloader.dataset[incorrect_idx]
+                prediction = predicted_labels_list[incorrect_idx]
 
                 incorrect_image_original = inverse_transform(incorrect_image)
                 incorrect_image_original = incorrect_image_original.permute(1, 2, 0).numpy()
 
-                cv2.imwrite(os.path.join(output_dir, f"incorrect_class_{class_label}.jpg"), incorrect_image_original[:,:,0]*255)
+                cv2.imwrite(os.path.join(output_dir, f"true_class_{true_label}_predicted_class_{prediction}.jpg"), incorrect_image_original[:,:,0]*255)
             except:
                 self.logger.log(f"No incorrectly classified image as class {class_label}")
             
