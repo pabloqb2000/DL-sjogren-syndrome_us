@@ -28,6 +28,7 @@ train_transform = v2.Compose([
     v2.ToImage(),
     v2.ToDtype(torch.float32, scale=True),
 
+    v2.Resize(300),
     #v2.RandomRotation(
     #           (-config.data.rotation_angle, config.data.rotation_angle),
     #          v2.InterpolationMode.BILINEAR),
@@ -43,6 +44,7 @@ train_transform = v2.Compose([
 
 valid_transform = v2.Compose([
     v2.ToImage(),
+    v2.Resize(300),
     v2.ToDtype(torch.float32, scale=True),
     v2.CenterCrop(size=config.data.crop_size),
     v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -129,7 +131,7 @@ else:
     valid_loader = DataLoader(
         valid_dataset, batch_size=config.data.batch_size, shuffle=False,
     )
-    tester.test(valid_loader, valid_dataset, im_val)
+    tester.test(valid_loader)
 
     # Last step would be to check results in test (once training is done correctly)
     '''tester.test(test_loader)'''
