@@ -13,11 +13,14 @@ model:
   type: ResNetUSCL
   model_config:
     device: cpu
-    freeze: False
-    hidden_dim: 64
+    freeze: True
+    hidden_dim: 32
+    cnn_features_out: 576
+    last_cnn_in_channels: 256
+    last_cnn_layers: 2
     dropout: 0.5
     last_dim: 4
-    discard_layers: 0
+    discard_layers: 1
     weights_path: ./weights/best_model.pth
 
 train:
@@ -34,7 +37,7 @@ train:
 
   optimizer: Adam
   optimizer_config:
-    lr: 0.001
+    lr: 0.0001
   
   lr_scheduler: ReduceLROnPlateau
   lr_scheduler_config:

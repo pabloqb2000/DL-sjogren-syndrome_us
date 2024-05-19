@@ -32,10 +32,10 @@ train_transform = v2.Compose([
     v2.RandomHorizontalFlip(p=0.5),
 
     RandomCropHorizontal(),
-    AutoContrast(),
-    v2.RandomRotation(
-              (-config.data.rotation_angle, config.data.rotation_angle),
-             v2.InterpolationMode.BILINEAR),
+    # AutoContrast(),
+    # v2.RandomRotation(
+    #           (-config.data.rotation_angle, config.data.rotation_angle),
+    #          v2.InterpolationMode.BILINEAR),
     v2.Resize(config.data.crop_size),
     # v2.GaussianBlur(kernel_size = 3),
     # v2.ColorJitter(),
@@ -47,9 +47,33 @@ valid_transform = v2.Compose([
     v2.ToImage(),
     v2.ToDtype(torch.float32, scale=True),
     CropCenterHorizontal(),
-    AutoContrast(),
+    # AutoContrast(),
     v2.Resize(config.data.crop_size),
     v2.Normalize([0.25176433, 0.25176433, 0.25176433], [0.1612002, 0.1612002, 0.1612002])
+])
+
+train_transform = v2.Compose([
+    v2.ToImage(),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.Resize(300),
+    #v2.RandomRotation(
+
+    #           (-config.data.rotation_angle, config.data.rotation_angle),
+    #          v2.InterpolationMode.BILINEAR),
+    v2.RandomResizedCrop(size=config.data.crop_size, antialias=True),
+    v2.RandomHorizontalFlip(p=0.5),
+    v2.GaussianBlur(kernel_size = 3),
+                # v2.ColorJitter(),
+    v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                # v2.RandomEqualize(p = 0.5),
+])
+
+valid_transform = v2.Compose([
+    v2.ToImage(),
+    v2.Resize(300),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.CenterCrop(size=config.data.crop_size),
+    v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
 
@@ -82,8 +106,8 @@ train_evaluator = build_evaluator(config.evaluation.train_metrics, writers, Data
 valid_evaluator = build_evaluator(config.evaluation.valid_metrics, writers, DatasetType.Valid)
 
 if config.model.type == 'ResNetOwn':
-    train_transform.transforms.append(model.resnet.weights.transforms())
-    valid_transform.transforms.append(model.resnet.weights.transforms())
+    train_transform.transforms.append(model.weights.transforms())
+    valid_transform.transforms.append(model.weights.transforms())
 
 
 # Train model
