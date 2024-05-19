@@ -6,7 +6,7 @@ data:
   crop_size:
     - 224
     - 224
-  rotation_angle: 30
+  rotation_angle: 10
   shuffle: true
 
 model:

@@ -3,9 +3,9 @@
 # Images are preprocessed using the python library openCV.
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 import pandas as pd
-
+import torch
 
 def preprocessing():
     data = pd.read_csv('./data/labels.csv', sep=',')
@@ -91,3 +91,29 @@ def preprocessing():
         im_list[i][0].save(f'./data/preprocessed_images/{id:03}.jpg')
 
     return 
+
+class RandomCropHorizontal(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, img):
+        *c, h, w = img.shape
+        idx = np.random.randint(0, w-h, 1)[0]
+        return img[:, :, idx:idx+h]
+    
+class CropCenterHorizontal(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, img):
+        *c, h, w = img.shape
+        idx = (w-h)//2
+        return img[:, :, idx:idx+h]
+
+class AutoContrast:
+    def __init__(self):
+        pass
+
+    def __call__(self, img):
+        min = torch.min(img)
+        return (img - min) / (torch.max(img) - min)

@@ -4,20 +4,16 @@ import pandas as pd
 import numpy as np
 
 def data_split(valid_size=.15, test_size=.15, random_state=42):   
-    data = pd.read_csv('./data/labels.csv', sep=',')
+    data = pd.read_csv('./data/labels.csv', sep=';')
     patients = np.unique(data['Patient ID'])
-    centers = [
-        data[data['Patient ID'] == id].iloc[0].Center
-        for id in patients
+    stratify_keys = [(
+        # data[data['Patient ID'] == id].iloc[0].Center,
+        np.max(data[data['Patient ID'] == id]["OMERACT score"])
+        ) for id in patients
     ]
 
-    centers = [ # Stratify by labels instead of by centers
-        data[data['Patient ID'] == id]["OMERACT score"].iloc[0] 
-        for id in patients
-    ]
-
-    train_patients, test_patients, train_centers, _ = train_test_split(patients, centers, test_size=test_size, random_state=random_state, stratify=centers)
-    train_patients, valid_patients = train_test_split(train_patients, test_size=valid_size, random_state=random_state, stratify=train_centers)
+    train_patients, test_patients, train_stratify_keys, _ = train_test_split(patients, stratify_keys, test_size=test_size, random_state=random_state, stratify=stratify_keys)
+    train_patients, valid_patients = train_test_split(train_patients, test_size=valid_size, random_state=random_state, stratify=train_stratify_keys)
 
     def get_data(patients):
         ids_list = sum([
