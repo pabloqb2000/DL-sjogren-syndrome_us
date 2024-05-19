@@ -8,7 +8,6 @@
   * [Dataset](#dataset)
   * [Architecture](#architecture)
   * [Workflow](#workflow)
-  * [Impact](#impact)
   * [Project Structure](#project-structure)
 - [Usage](#usage)
     + [Inference](#inference)
@@ -58,11 +57,6 @@ This deep learning project focuses on classifying ultrasound (US) images of the 
 2. **Model Training**:
    - Hyperparameter tuning.
    - Regularization techniques (dropout, lr scheduling, early stopping,...).
-
-## Impact
-
-- Accurate classification and OMERACT score prediction can aid clinicians in early diagnosis and monitoring of Sjögren syndrome.
-- This project contributes to the field of medical imaging and autoimmune disease research.
 
 ## Project Structure
 
