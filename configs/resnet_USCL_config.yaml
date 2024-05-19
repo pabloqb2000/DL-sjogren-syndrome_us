@@ -66,9 +66,9 @@ evaluation:
     - name: Accuracy
   writers:
     - LogWritter
-    #- MLflowWriter
-    #- NumpyWriter
-    #- TensorboardWriter
+    - MLflowWriter
+    - NumpyWriter
+    - TensorboardWriter
 test:
 
   

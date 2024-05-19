@@ -24,9 +24,10 @@ config_file = sys.argv[1]
 config = load_config(config_file)
 set_seed(config.random_seed)
 
+preprocessing("./data/labels.csv", config)
 
 # Transforms
-train_transform = v2.Compose([
+'''train_transform = v2.Compose([
     v2.ToImage(),
     v2.ToDtype(torch.float32, scale=True),
     v2.RandomHorizontalFlip(p=0.5),
@@ -50,7 +51,7 @@ valid_transform = v2.Compose([
     # AutoContrast(),
     v2.Resize(config.data.crop_size),
     v2.Normalize([0.25176433, 0.25176433, 0.25176433], [0.1612002, 0.1612002, 0.1612002])
-])
+])'''
 
 train_transform = v2.Compose([
     v2.ToImage(),
@@ -105,9 +106,9 @@ writers = build_writers(config, config.train.out_path, logger)
 train_evaluator = build_evaluator(config.evaluation.train_metrics, writers, DatasetType.Train)
 valid_evaluator = build_evaluator(config.evaluation.valid_metrics, writers, DatasetType.Valid)
 
-if config.model.type == 'ResNetOwn':
-    train_transform.transforms.append(model.weights.transforms())
-    valid_transform.transforms.append(model.weights.transforms())
+# if config.model.type == 'ResNetOwn':
+#     train_transform.transforms.append(model.weights.transforms())
+#     valid_transform.transforms.append(model.weights.transforms())
 
 
 # Train model
@@ -120,4 +121,6 @@ tester = Tester(model, logger, config)
 tester.test(valid_loader)
 
 # Last step would be to check results in test (once training is done correctly)
-'''tester.test(test_loader)'''
+tester.test(test_loader)
+
+torch.save(model.state_dict(), './best_model.pth')

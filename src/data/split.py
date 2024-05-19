@@ -4,17 +4,21 @@ import pandas as pd
 import numpy as np
 
 def data_split(valid_size=.15, test_size=.15, random_state=42):   
-    data = pd.read_csv('./data/labels.csv', sep=';')
+    data = pd.read_csv('./data/labels.csv', sep=',')
     patients = np.unique(data['Patient ID'])
-    stratify_keys = [(
-        # data[data['Patient ID'] == id].iloc[0].Center,
+    # centers = [
+    #     data[data['Patient ID'] == id].iloc[0].Center
+    #     for id in patients
+    # ]
+
+    centers = [ # Stratify by labels instead of by centers
         np.max(data[data['Patient ID'] == id]["OMERACT score"])
-        ) for id in patients
+        for id in patients
     ]
 
-    train_patients, test_patients, train_stratify_keys, _ = train_test_split(patients, stratify_keys, test_size=test_size, random_state=random_state, stratify=stratify_keys)
-    train_patients, valid_patients = train_test_split(train_patients, test_size=valid_size, random_state=random_state, stratify=train_stratify_keys)
-
+    train_patients, test_patients, train_centers, _ = train_test_split(patients, centers, test_size=test_size, random_state=random_state, stratify=centers)
+    train_patients, valid_patients = train_test_split(train_patients, test_size=valid_size, random_state=random_state, stratify=train_centers)
+    print(test_patients)
     def get_data(patients):
         ids_list = sum([
             data[data['Patient ID'] == id]['Anonymized ID'].to_list()
@@ -26,7 +30,7 @@ def data_split(valid_size=.15, test_size=.15, random_state=42):
         ], [])
 
         imgs = [
-            np.repeat(np.array(Image.open(f'./data/imgs/{id:03}.jpg'))[:, :, np.newaxis], 3, -1)
+            np.repeat(np.array(Image.open(f'./data/imgs/preprocessed_images/{id:03}.jpg'))[:, :, np.newaxis], 3, -1)
             for id in ids_list
         ]
 

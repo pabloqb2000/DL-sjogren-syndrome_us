@@ -6,10 +6,14 @@ import numpy as np
 from PIL import Image, ImageOps
 import pandas as pd
 import torch
+import os
 
-def preprocessing():
-    data = pd.read_csv('./data/labels.csv', sep=',')
-    patients = np.unique(data['Patient ID'])
+def preprocessing(labels_path, config):
+    imgs_path = config.data.path
+    config.data.path += "preprocessed_images/"
+    data = pd.read_csv(labels_path, sep=',')
+    if not os.path.isdir(imgs_path + "preprocessed_images/"):
+        os.makedirs(imgs_path + "preprocessed_images/")
 
     im_list = []
 
@@ -20,7 +24,7 @@ def preprocessing():
             # Samsung images are very clear. Only a crop is needed.
 
             id = data["Anonymized ID"][i]
-            im = Image.open(f'./data/imgs/{id:03}.jpg')
+            im = Image.open(f'{imgs_path}{id:03}.jpg')
             width, height = im.size
             left = width * 0.1
             upper = height * 0.05
@@ -39,7 +43,7 @@ def preprocessing():
             # Phillips images ..............
 
             id = data["Anonymized ID"][i]
-            im = Image.open(f'./data/imgs/{id:03}.jpg')
+            im = Image.open(f'{imgs_path}{id:03}.jpg')
             width, height = im.size
             left = width * 0.15
             upper = height * 0.01
@@ -59,7 +63,7 @@ def preprocessing():
             # Esaote images .............. will probably need more preprocessing
 
             id = data["Anonymized ID"][i]
-            im = Image.open(f'./data/imgs/{id:03}.jpg')
+            im = Image.open(f'{imgs_path}{id:03}.jpg')
             width, height = im.size
             left = width * 0.10
             upper = height * 0.01
@@ -78,7 +82,7 @@ def preprocessing():
             # GE images .............. will probably need more preprocessing
 
             id = data["Anonymized ID"][i]
-            im = Image.open(f'./data/imgs/{id:03}.jpg')
+            im = Image.open(f'{imgs_path}{id:03}.jpg')
 
             cropped_image = im
             
@@ -88,7 +92,7 @@ def preprocessing():
     for i in range(len(im_list)):
         id = data["Anonymized ID"][i]
         # Save the images in the folder preprocessed_images
-        im_list[i][0].save(f'./data/preprocessed_images/{id:03}.jpg')
+        im_list[i][0].save(f'{imgs_path}preprocessed_images/{id:03}.jpg')
 
     return 
 
