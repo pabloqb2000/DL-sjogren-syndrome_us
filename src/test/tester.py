@@ -21,9 +21,7 @@ from torchvision.transforms import v2
 class Tester:
     def __init__(self, 
                  model: torch.nn.Module, 
-                 logger: AbstractLogger, 
-                 train_evaluator: AbstractEvaluator, 
-                 valid_evaluator: AbstractEvaluator, 
+                 logger: AbstractLogger,
                  config: DictAsMember) -> None:
         
         self.model = model

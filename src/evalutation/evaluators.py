@@ -9,7 +9,8 @@ class AbstractEvaluator:
         self.writers = writers
         self.dataset_type = dataset_type
         self.perc = perc
-        self.value = self.evaluations = 0
+        self.value = 0
+        self.evaluations = 0
 
     def evaluate(self, prediction, target, perc):
         if perc >= self.perc:
@@ -41,6 +42,20 @@ class CallableEvaluator(AbstractEvaluator):
     def __eval__(self, prediction, target):
         return self.evaluator(prediction, target).item()
 
+class AccuracyEvaluator(AbstractEvaluator):
+    def __init__(self, name, writers, dataset_type, perc=1):
+        super().__init__(name, writers, dataset_type, perc)
+
+    def evaluate(self, prediction, target, perc):
+        if perc >= self.perc:
+            return
+        
+        self.value += self.__eval__(prediction, target)
+        self.evaluations += target.size(0)
+
+    def __eval__(self, x, y):
+        return (torch.argmax(x, dim=1) == y).float().sum().item()
+
 class MultipleEvaluator:
     def __init__(self, evaluators):
         self.evaluators = evaluators
@@ -60,15 +75,19 @@ class MultipleEvaluator:
 def build_evaluator(metrics, writers, dataset_type):
     evaluators = []
     for metric in metrics:
-        evaluators.append(
-            CallableEvaluator(
-                metric.name, 
-                __get_metric(metric.name), 
-                writers,
-                dataset_type,
-                metric.get('perc', 1)
+        if metric.name == 'Accuracy':
+            evaluators.append(AccuracyEvaluator(
+                metric.name, writers, dataset_type, metric.get('perc', 1)))
+        else:
+            evaluators.append(
+                CallableEvaluator(
+                    metric.name, 
+                    __get_metric(metric.name), 
+                    writers,
+                    dataset_type,
+                    metric.get('perc', 1)
+                )
             )
-        )
 
     return MultipleEvaluator(evaluators)
 
@@ -115,10 +134,6 @@ def __get_metric(metric):
         return nn.TripletMarginLoss()
     elif metric == "TripletMarginWithDistanceLoss":
         return nn.TripletMarginWithDistanceLoss()
-    elif metric == 'Accuracy':
-        return accuracy
     else:
         raise ValueError(f"Unrecognized metric [{metric}]")
 
-def accuracy(x, y):
-    return (torch.argmax(x, dim=1) == y).float().sum() / y.shape[0]
