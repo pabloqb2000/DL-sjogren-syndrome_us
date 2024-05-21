@@ -8,14 +8,11 @@
   * [Dataset](#dataset)
   * [Architecture](#architecture)
   * [Workflow](#workflow)
-  * [Impact](#impact)
   * [Project Structure](#project-structure)
 - [Usage](#usage)
     + [Inference](#inference)
-      - [Prerequisites](#prerequisites)
       - [Command Line Arguments](#command-line-arguments)
       - [Usage](#usage-1)
-      - [Example](#example)
       - [Options](#options)
 - [Results](#results)
   * [Validation set](#validation-set)
@@ -60,11 +57,6 @@ This deep learning project focuses on classifying ultrasound (US) images of the 
 2. **Model Training**:
    - Hyperparameter tuning.
    - Regularization techniques (dropout, lr scheduling, early stopping,...).
-
-## Impact
-
-- Accurate classification and OMERACT score prediction can aid clinicians in early diagnosis and monitoring of Sjögren syndrome.
-- This project contributes to the field of medical imaging and autoimmune disease research.
 
 ## Project Structure
 
@@ -159,8 +151,8 @@ Final **loss** in validation: 0.95
 **Accuracy**:  0.57
 
 **Confusion matrix**
- . | **0** | **1** | **2** | **3** 
---- | --- | --- | --- | --- |
+ true \ pred | **0** | **1** | **2** | **3** 
+---: | --- | --- | --- | --- |
 **0** | 7 | 4 | 1 | 0
 **1** | 1 | 4 | 3 | 1
 **2** | 1 | 1 | 3 | 2
@@ -168,12 +160,11 @@ Final **loss** in validation: 0.95
 
 Classification report:
  OMERACT score | precision | recall | f1-score | support
---- | --- | --- | --- | --- |
+---: | ---: | ---: | ---: | ---: |
  0 | 0.78 | 0.58 | 0.67 | 12
  1 | 0.44 | 0.44 | 0.44 |  9
  2 | 0.38 | 0.43 | 0.40 |  7
  3 | 0.67 | 0.86 | 0.75 |  7 
-|
 accuracy |      |      | 0.57 | 35
 macro avg | 0.57 | 0.58 | 0.57 | 35
 weighted avg | 0.59 | 0.57 | 0.57 | 35
@@ -184,8 +175,8 @@ Final **loss** in test: 1.06
 **Accuracy**:  0.57
 
 **Confusion Matrix**:
- . | **0** | **1** | **2** | **3** 
---- | --- | --- | --- | --- |
+ true \ pred | **0** | **1** | **2** | **3** 
+---: | --- | --- | --- | --- |
 **0** | 8 | 2 | 1 | 0
 **1** | 1 | 0 | 1 | 1
 **2** | 1 | 2 | 1 | 0
@@ -194,12 +185,11 @@ Final **loss** in test: 1.06
 Classification report:
 
  OMERACT score | precision | recall | f1-score | support
---- | --- | --- | --- | --- |
+---: | ---: | ---: | ---: | ---: |
  0 | 0.73 | 0.73 | 0.73 | 11
  1 | 0.00 | 0.00 | 0.00 |  3
  2 | 0.25 | 0.25 | 0.25 |  4
  3 | 0.88 | 0.70 | 0.78 | 10
-|
 accuracy |      |      | 0.57 | 28
 macro avg | 0.46 | 0.42 | 0.44 | 28
 weighted avg | 0.63 | 0.57 | 0.60 | 28
