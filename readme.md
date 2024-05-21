@@ -116,6 +116,10 @@ This deep learning project follows a well-organized structure to manage code, da
 
 
 # Usage
+### Dependencies
+
+To install all packages just run `pip install -r requirements.txt`. Note that some packages might not be necessary if you are olny planning on doing inference.
+
 ### Inference
 
 To perform inference using the `inference.py` script, follow the steps below:
